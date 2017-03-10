@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jim.yang.example.dao.CompanyNewsDao">
+    
+   
+ <sql id="pageHeader">
+		<choose>
+			<when test="_databaseId == 'mysql'">
+			
+			</when>
+			<otherwise>
+				<if test="page_start != null and page_end != null">    
+					select * from (select a.*, rownum rn from (
+				</if>
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<sql id="pageFooter">
+		<choose>
+			<when test="_databaseId  == 'mysql'">
+				<if test="page_start_1 != null and page_limit != null">    
+					limit ${page_start_1}, ${page_limit}
+				</if>
+			</when>
+			<otherwise>
+				<if test="page_start != null and page_end != null">
+					) a where rownum &lt;= #{page_end}) where rn &gt;= #{page_start}
+				</if>
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<insert id="insertEntity">
+		insert into ${tbl_name} (
+	  		<foreach collection="param.keys" item="key" index="idx" open="" separator="," close="">
+	  			${key}
+        	</foreach>
+	  	) values (
+	  		<foreach collection="param.values" item="value" index="idx" open="" separator="," close="">
+	  			'${value}'
+        	</foreach>
+	  	)
+	</insert>
+	
+	
+	<delete id="deleteEntity" >
+		delete from ${tbl_name}
+		where news_id in (
+			<foreach collection="ids" item="id" index="idx" open="" separator="," close="">
+				#{id}
+			</foreach>
+		)
+	</delete>
+	
+	<update id="updateEntity">
+		update ${tbl_name}
+		set 
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="," close="">
+			<if test="param[key] != null">    
+				${key} = '${param[key]}' 
+			</if> 
+		</foreach>
+		where news_id = '${tbl_id}'
+	</update>
+	
+	<select id="countEntity" resultType="int">
+		select count(0) as "count"
+		from ${tbl_name}
+		where 1 = 1
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="" close="">
+			<if test="param[key] != null and param[key] != ''">    
+				and ${key} = '${param[key]}'
+			</if> 
+		</foreach>
+	</select>
+	
+	<select id="selectList" resultType="map">
+		<include refid="pageHeader"/>
+		select 
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="," close="">
+			a.${key} as "${key}"
+		</foreach>
+		from ${tbl_name} a
+		where 1 = 1
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="" close="">
+			<if test="param[key] != null and param[key] != ''">    
+				<choose>
+					<when test="key == 'patient_name'">
+						and ${key} like '%${param[key]}%'
+					</when>
+					<otherwise>
+						and ${key} = '${param[key]}'
+					</otherwise>
+				</choose>
+			</if>
+		</foreach>
+		<if test="sortname != null and sortname != ''">
+			order by a.${sortname} ${sortorder}
+		</if>
+	    <include refid="pageFooter"/>
+	</select>
+	
+	
+	<select id="selectEntity" resultType="map">
+		select 
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="," close="">
+			a.${key} as "${key}"
+		</foreach>
+		
+		from ${tbl_name} a
+		
+		where 1 = 1
+		<if test="param['news_id'] != null and param['news_id'] != ''">
+			and news_id  = '${param['news_id']}'
+		</if>
+	</select>
+	
+	
+	<select id="countEntityByLab" resultType="int">
+		select count(0) as "count"
+		from ${tbl_name} a
+		left join ild_lab_inf c on a.lab_id = c.lab_id
+		where 1 = 1
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="" close="">
+			<if test="param[key] != null and param[key] != ''">    
+				<choose>
+					<when test="key == 'lab_name'">
+						and c.${key} like '%${param[key]}%'
+					</when>
+					<when test="key == 'title'">
+						and a.${key} like '%${param[key]}%'
+					</when>
+					<otherwise>
+						and a.${key} = '${param[key]}'
+					</otherwise>
+				</choose>
+			</if> 
+		</foreach>
+	</select>
+	
+	
+	<select id="selectListByLab" resultType="map">
+		<include refid="pageHeader"/>
+		select 
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="," close="">
+	   		 <choose>
+				<when test="key == 'lab_name'">
+					c.${key} as "${key}"
+				</when>
+				<otherwise>
+					a.${key} as "${key}"
+				</otherwise>
+			</choose>
+		</foreach>
+		from ${tbl_name} a
+		left join ild_lab_inf c on a.lab_id = c.lab_id
+		where 1 = 1
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="" close="">
+			<if test="param[key] != null and param[key] != ''">    
+				<choose>
+					<when test="key == 'lab_name'">
+						and c.${key} like '%${param[key]}%'
+					</when>
+					<when test="key == 'title'">
+						and a.${key} like '%${param[key]}%'
+					</when>
+					<otherwise>
+						and a.${key} = '${param[key]}'
+					</otherwise>
+				</choose>
+			</if>
+		</foreach>
+		<if test="sortname != null and sortname != ''">
+			order by a.${sortname} ${sortorder}
+		</if>
+	    <include refid="pageFooter"/>
+	</select>
+	
+	
+	<update id="updateEntityList">
+		update ${tbl_name}
+		set 
+		<foreach collection="param.keys" item="key" index="idx" open="" separator="," close="">
+			<if test="param[key] != null">    
+				${key} = '${param[key]}' 
+			</if> 
+		</foreach>
+		 where news_id in (
+			<foreach collection="ids" item="id" index="idx" open="" separator="," close="">
+				#{id}
+			</foreach>
+		)
+	</update>
+	
+	
+</mapper>

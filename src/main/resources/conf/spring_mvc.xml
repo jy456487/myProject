@@ -1,0 +1,82 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
+
+	<context:component-scan base-package="jim.yang.*.controller" />
+<!-- 	<mvc:annotation-driven /> -->
+	
+	<mvc:annotation-driven>
+	  <mvc:message-converters register-defaults="true">
+	    <!-- 解决json数据中传输中文乱码问题 -->
+	    <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+	      <constructor-arg value="UTF-8" />
+	    </bean>
+	    <!-- 解决IE不能解析使用 application/json 类型返回的数据问题 -->
+	    <bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" p:supportedMediaTypes="text/html" />	
+	  </mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	<mvc:default-servlet-handler/>
+	
+<!-- 	<mvc:resources mapping="/static/**" location="/static/"/>   -->
+	<!-- <mvc:resources mapping="/lib/**" location="/lib/"/>  
+    <mvc:default-servlet-handler/>  
+      -->
+<!-- 	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/pages/</value>
+		</property>
+		<property name="suffix">
+			<value>.html</value>
+		</property>
+	</bean> -->
+
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="order" value="1" />
+		<property name="mediaTypes">  
+			<map>  
+			   <entry key="json" value="application/json" />  
+			   <entry key="xml" value="application/xml" />  
+			   <entry key="pdf" value="application/pdf" />  
+			</map>  
+		</property>
+        <property name="defaultViews">  
+            <list>
+            	<!-- 若要返回json数据 方法前需加 @ResponseBody  -->
+                <bean class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"></bean>  
+            </list>  
+        </property>
+        <property name="viewResolvers">    
+			<list>  
+			  <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+			  	<description>假如逻辑试图名为 "hello"，因此 viewResolver 将解析成 /WEB-INF/html/hello.html  
+	    		</description>
+			    <property name="prefix" value="/WEB-INF/pages/"/>   
+			    <property name="suffix" value=".html"/>  
+			  </bean>  
+			</list>  
+	    </property>  
+    </bean>
+    
+	
+	<!-- mvc 拦截器 -->
+    <mvc:interceptors>
+		<!-- 日志拦截器  用于一个交易生成一个日志文件-->
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/><!-- 拦截路径 -->
+			<bean class="jim.yang.logback.IldLogInterceptor"/> 
+		</mvc:interceptor>
+	</mvc:interceptors>
+</beans>
+
+
+

@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/java/jim/yang/example/dao/BaseDao.java=UTF-8
+encoding//src/main/java/jim/yang/example/util/CommonMapUtil.java=UTF-8
+encoding//src/main/java/jim/yang/example/util/Pager.java=UTF-8
+encoding//src/main/java/jim/yang/example/util/ReturnMsg.java=UTF-8
+encoding//src/main/java/jim/yang/example/util/WebUtil.java=UTF-8
+encoding//src/main/java/jim/yang/logback/IldLogInterceptor.java=UTF-8
+encoding//src/main/resources=UTF-8
+encoding//src/test/java=UTF-8
+encoding/<project>=UTF-8
+encoding/src=UTF-8

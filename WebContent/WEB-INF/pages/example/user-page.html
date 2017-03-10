@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>jQuery page Demo</title>
+        <link href="/myProject/static/component/jqpagenation/paging.css" rel="stylesheet" />
+         <script src="/myProject/static/component/jqpagenation/jquery-1.11.2.js"></script>
+        <script src="/myProject/static/component/jqpagenation/query.js"></script>
+          <script src="/myProject/static/component/jqpagenation/paging.js"></script>
+        
+    </head>
+    <body>
+
+ <div class="section page1">
+            <div class="wrap_c comfr">
+                <div class="com_t"></div>
+                <div class="com_c">
+                    <div class="comc_nr">
+                        <!--内容-->
+                        <div class="news_01">
+                            <div class="fr"><span>公司新闻</span><i>NEWS</i>
+                            </div>
+                        </div>
+                        <div class="newsList">
+	                        <div class="news_02">
+	                        	<ul></ul>
+	                        </div>
+	                        <div id="news_page"></div>
+						</div>
+                        <!--end内容-->
+                    </div>
+                </div>
+                <div class="com_b"></div>
+            </div>
+        </div>
+        <script>
+        
+    	//加载公司新闻
+    	loadnewsFist();
+        
+    	function loadnewsFist(){
+    		var datahtml = "";
+    		$.ajax({
+    			type: "POST",
+    			url: 'common/companyNews/listCompanyNews.do',
+    			data: {"page":1,"rp":2},
+    			dataType: 'json',
+    			cache: false,
+    			success: function(data) {
+    				alert("进入");
+    			  		var rows =  data.rows;
+    	    			var total = data.total;
+    	    			if(rows.length  > 0){
+    	    				for (i = 0 ; i < rows.length; i++){
+    	    					var val =rows[i].publish_date;
+    	    					val= val.substring(0, 4)+'-'+val.substring(4, 6)+'-'+val.substring(6, 8);
+    	    					datahtml += '<li><span>'+ val +'<input type="hidden" value="'+rows[i].news_id+'"/></span><a href="javascript:void(0);">'+rows[i].title +'</a></li>';
+    	    				}
+    	    				$('#news_page').Paging({pagesize:2,count:total,callback:function(page,size,count){
+    	    					loadNewslist(page);
+    	    				}});
+    	    			}else if(rows.length == 0){
+    	    				$('#news_page').Paging({pagesize:2,count:0,});
+    	    			}
+    	    			$(".newsList .news_02").find("ul").html(datahtml);
+    			},
+    			error: function(request) {
+    				alert('request send error...[' + request.status + ']');
+    			}
+    		});
+    	}
+    	
+    	function loadNewslist(page){
+    		var datahtml = "";
+    		$.ajax({
+    			type: "POST",
+    			url: 'common/companyNews/listCompanyNews.do',
+    			data: {"page":page,"rp":2,"lab_id":$("#user_org_id").val()},
+    			dataType: 'json',
+    			cache: false,
+    			success: function(data) {
+    			 var rows =  data.rows;
+    	    			var total = data.total;
+    	    			if(rows.length  > 0){
+    	    				for (i = 0 ; i < rows.length; i++){
+    	    					var val =rows[i].publish_date;
+    	    					val= val.substring(0, 4)+'-'+val.substring(4, 6)+'-'+val.substring(6, 8);
+    	    					datahtml += '<li><span>'+ val +'<input type="hidden" value="'+rows[i].news_id+'"/></span><a href="javascript:void(0);">'+rows[i].title +'</a></li>';
+    	    				}
+    	    			}else if(rows.length == 0){
+    	    				$('#news_page').Paging({pagesize:8,count:0,});
+    	    			}
+    	    			$(".newsList .news_02").find("ul").html(datahtml);
+    			},
+    			error: function(request) {
+    				alert('request send error...[' + request.status + ']');
+    			}
+    		});
+    	}
+        </script>
+    </body>
+</html>
